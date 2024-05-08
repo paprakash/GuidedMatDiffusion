@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "diffcsp"
+version = "0.0.1"
+dependencies = [
+   "torch == 2.3.0",
+   "torch-geometric",
+   "pytorch_lightning",
+   "pymatgen",
+   "hydra-core",
+   "python-dotenv",
+   "wandb",
+   "p_tqdm",
+   "pyxtal",
+   "einops",
+]
+description = "Fork of DiffCSP with MatterGen-like improvements"
+readme = "README.md"
+
+[tool.setuptools.packages.find]
+include = ["diffcsp*"]

@@ -1,22 +1,36 @@
-# Crystal Structure Prediction by Joint Equivariant Diffusion (NeurIPS 2023)
+# Fork of Crystal Structure Prediction by Joint Equivariant Diffusion (NeurIPS 2023)
 
-Implementation codes for Crystal Structure Prediction by Joint Equivariant Diffusion (DiffCSP). 
+Implementation codes for Crystal Structure Prediction by Joint Equivariant Diffusion (DiffCSP) with MatterGen-like improvements. 
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/jiaor17/DiffCSP/blob/main/LICENSE)   [**[Paper]**](https://arxiv.org/abs/2309.04475)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/jiaor17/DiffCSP/blob/main/LICENSE)   [**[Original Paper]**](https://arxiv.org/abs/2309.04475)
 
 ![Overview](fig/overview.png "Overview")
 
 ![Demo](fig/demo.gif "Demo")
 
-### Dependencies and Setup
+### Setup
 
 ```
-python==3.8.13
-torch==1.9.0
-torch-geometric==1.7.2
-pytorch_lightning==1.3.8
-pymatgen==2023.8.10
+pip install git+https://github.com/FERMat-ML/MaterialsDiffusion.git
 ```
+or clone this repo, cd into its directory, and run
+```
+pip install .
+```
+torch-scatter and torch-sparse should also be installed. Their installation will depend on the version of PyTorch which is installed. 
+For example, to install the binaries for PyTorch 2.3.0, simply run
+
+```
+pip install torch_scatter torch_sparse -f https://data.pyg.org/whl/torch-2.3.0+${CUDA}.html
+```
+
+where `${CUDA}` should be replaced by either `cpu`, `cu118`, or `cu121` depending on your PyTorch installation.
+
+|             | `cpu` | `cu118` | `cu121` |
+| ----------- | ----- | ------- | ------- |
+| **Linux**   | ✅     | ✅       | ✅       |
+| **Windows** | ✅     | ✅       | ✅       |
+| **macOS**   | ✅     |         |         |
 
 Rename the `.env.template` file into `.env` and specify the following variables.
 
@@ -41,6 +55,8 @@ python diffcsp/run.py data=<dataset> model=diffusion_w_type expname=<expname>
 ```
 
 The ``<dataset>`` tag can be selected from perov_5, mp_20, mpts_52 and carbon_24, and the ``<expname>`` tag can be an arbitrary name to identify each experiment. Pre-trained checkpoints are provided [here](https://drive.google.com/drive/folders/11WOc9lTZN4hkIY7SKLCIrbsTMGy9TsoW?usp=sharing).
+
+If one does not want to use WandB during training, comment out the "wandb" section in conf/logging/default.yaml. 
 
 ### Evaluation
 
@@ -91,9 +107,8 @@ python scripts/compute_metrics.py --root_path <energy_model_path> --tasks opt
 
 The main framework of this codebase is build upon [CDVAE](https://github.com/txie-93/cdvae). For the datasets, Perov-5, Carbon-24 and MP-20 are from [CDVAE](https://github.com/txie-93/cdvae), and MPTS-52 is collected from its original [codebase](https://github.com/sparks-baird/mp-time-split).
 
-### Citation
+### Original Citation
 
-Please consider citing our work if you find it helpful:
 ```
 @article{jiao2023crystal,
   title={Crystal structure prediction by joint equivariant diffusion},
@@ -103,8 +118,3 @@ Please consider citing our work if you find it helpful:
 }
 ```
 
-### Contact
-
-If you have any questions, feel free to reach us at:
-
-Rui Jiao: [jiaor21@mails.tsinghua.edu.cn](mailto:jiaor21@mails.tsinghua.edu.cn)

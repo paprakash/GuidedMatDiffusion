@@ -151,8 +151,8 @@ def run(cfg: DictConfig) -> None:
         callbacks=callbacks,
         deterministic=cfg.train.deterministic,
         check_val_every_n_epoch=cfg.logging.val_check_interval,
-        progress_bar_refresh_rate=cfg.logging.progress_bar_refresh_rate,
-        resume_from_checkpoint=ckpt,
+        # progress_bar_refresh_rate=cfg.logging.progress_bar_refresh_rate,
+        # resume_from_checkpoint=ckpt,
         **cfg.train.pl_trainer,
     )
 
