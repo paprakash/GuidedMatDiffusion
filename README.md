@@ -10,13 +10,16 @@ Implementation codes for Crystal Structure Prediction by Joint Equivariant Diffu
 
 ### Setup
 
-```
-pip install git+https://github.com/FERMat-ML/MaterialsDiffusion.git
-```
-or clone this repo, cd into its directory, and run
+Clone this repo, cd into its directory, and run
 ```
 pip install .
 ```
+or 
+```
+pip install git+https://github.com/FERMat-ML/MaterialsDiffusion.git
+```
+The former is the preferred way, as one will still need scripts and configuration files which are present in this repo if installing directly.
+
 torch-scatter and torch-sparse should also be installed. Their installation will depend on the version of PyTorch which is installed. 
 For example, to install the binaries for PyTorch 2.3.0, simply run
 
@@ -32,7 +35,7 @@ where `${CUDA}` should be replaced by either `cpu`, `cu118`, or `cu121` dependin
 | **Windows** | ✅     | ✅       | ✅       |
 | **macOS**   | ✅     |         |         |
 
-Rename the `.env.template` file into `.env` and specify the following variables.
+Rename the `.env.template` file into `.env` , specify the below variables and source it.
 
 ```
 PROJECT_ROOT: the absolute path of this repo
