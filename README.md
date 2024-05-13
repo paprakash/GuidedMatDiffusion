@@ -12,7 +12,7 @@ Implementation codes for Crystal Structure Prediction by Joint Equivariant Diffu
 
 Clone this repo, cd into its directory, and run
 ```
-pip install .
+pip install -e .
 ```
 or 
 ```
