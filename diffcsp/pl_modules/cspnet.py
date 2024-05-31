@@ -183,8 +183,6 @@ class CSPNet(nn.Module):
         # Initialize SinusoidsEmbedding for property embedding
         self.property_embedding = SinusoidsEmbedding(n_frequencies=10, n_space=3)
 
-    def gen_edges(self, num_atoms, frac_coords, lattices, node2graph):
-
     def select_symmetric_edges(self, tensor, mask, reorder_idx, inverse_neg):
         # Mask out counter-edges
         tensor_directed = tensor[mask]
