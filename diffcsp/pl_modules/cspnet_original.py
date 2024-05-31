@@ -94,33 +94,6 @@ class CSPLayer(nn.Module):
         return node_input + node_output
 
 
-class AdapterModule(nn.Module):
-    def __init__(self, input_dim, hidden_dim, property_dim):  # input_dim=dim of hidden variable, and property_dim=property embedding
-        super(AdapterModule, self).__init__()
-        # Adapter is a two-layer MLP
-        self.adapter_fc1 = nn.Linear(property_dim, hidden_dim)
-        self.adapter_relu = nn.ReLU() # not sure if matergen does this but it seems a good idea
-        self.adapter_fc2 = nn.Linear(hidden_dim, input_dim)
-        
-        # Mixin is a zero-initialized linear layer without bias
-        self.mixin = nn.Linear(input_dim, input_dim, bias=False)
-        nn.init.zeros_(self.mixin.weight)  # Zero-initialize mixin weights
-
-    def forward(self, H_L, property_emb, property_label=None):
-        if property_label is not None:
-            f_adapter_L = self.adapter_fc1(property_emb)
-            f_adapter_L = self.adapter_relu(f_adapter_L)
-            f_adapter_L = self.adapter_fc2(f_adapter_L)
-            
-            f_mixin_L = self.mixin(f_adapter_L)
-            
-            H_prime_L = H_L + f_mixin_L
-        else:
-            H_prime_L = H_L
-
-        return H_prime_L
-
-
 class CSPNet(nn.Module):
 
     def __init__(
@@ -139,8 +112,7 @@ class CSPNet(nn.Module):
         ip = True,
         smooth = False,
         pred_type = False,
-        pred_scalar = False,
-        property_dim = 32 # added to acomodate adapter module
+        pred_scalar = False
     ):
         super(CSPNet, self).__init__()
 
@@ -176,14 +148,6 @@ class CSPNet(nn.Module):
         self.pred_scalar = pred_scalar
         if self.pred_scalar:
             self.scalar_out = nn.Linear(hidden_dim, 1)
-
-        # Initialize AdapterModule
-        self.adapter = AdapterModule(input_dim=input_dim, hidden_dim=hidden_dim, property_dim=property_dim) # I need to figure out the size of node representation, that will be the input dim here
-        
-        # Initialize SinusoidsEmbedding for property embedding
-        self.property_embedding = SinusoidsEmbedding(n_frequencies=10, n_space=3)
-
-    def gen_edges(self, num_atoms, frac_coords, lattices, node2graph):
 
     def select_symmetric_edges(self, tensor, mask, reorder_idx, inverse_neg):
         # Mask out counter-edges
@@ -296,7 +260,7 @@ class CSPNet(nn.Module):
             return edge_index_new, -edge_vector_new
             
 
-    def forward(self, t, atom_types, frac_coords, lattices, num_atoms, node2graph, property=None):
+    def forward(self, t, atom_types, frac_coords, lattices, num_atoms, node2graph):
 
         edges, frac_diff = self.gen_edges(num_atoms, frac_coords, lattices, node2graph)
         edge2graph = node2graph[edges[0]]
@@ -309,20 +273,7 @@ class CSPNet(nn.Module):
         node_features = torch.cat([node_features, t_per_atom], dim=1)
         node_features = self.atom_latent_emb(node_features)
 
-        #getting g from property
-        if property is not None:
-            property_emb = self.property_embedding(property)
-        else:
-            property_emb = None
-        #getting property_label if there is property
-        if property is not None:
-            property_label = torch.tensor([1])
-        else:
-            property_label = None
-
-
         for i in range(0, self.num_layers):
-            node_features = self.adapter(node_features, property_emb, property_label=property_label)
             node_features = self._modules["csp_layer_%d" % i](node_features, frac_coords, lattices, edges, edge2graph, frac_diff = frac_diff)
 
         if self.ln:
