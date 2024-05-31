@@ -95,19 +95,19 @@ class CSPLayer(nn.Module):
 
 
 class AdapterModule(nn.Module):
-    def __init__(self, input_dim, hidden_dim, property_dim):  # input_dim=dim of hidden variable, and property_dim=property embedding
+    def __init__(self, input_dim, am_hidden_dim, property_dim):  # input_dim=dim of hidden variable, and property_dim=property embedding
         super(AdapterModule, self).__init__()
         # Adapter is a two-layer MLP
-        self.adapter_fc1 = nn.Linear(property_dim, hidden_dim)
+        self.adapter_fc1 = nn.Linear(property_dim, am_hidden_dim)
         self.adapter_relu = nn.ReLU() # not sure if matergen does this but it seems a good idea
-        self.adapter_fc2 = nn.Linear(hidden_dim, input_dim)
+        self.adapter_fc2 = nn.Linear(am_hidden_dim, input_dim)
         
         # Mixin is a zero-initialized linear layer without bias
         self.mixin = nn.Linear(input_dim, input_dim, bias=False)
         nn.init.zeros_(self.mixin.weight)  # Zero-initialize mixin weights
 
-    def forward(self, H_L, property_emb, property_label=None):
-        if property_label is not None:
+    def forward(self, H_L, property_emb, property_label=False):
+        if property_label:
             f_adapter_L = self.adapter_fc1(property_emb)
             f_adapter_L = self.adapter_relu(f_adapter_L)
             f_adapter_L = self.adapter_fc2(f_adapter_L)
@@ -140,7 +140,7 @@ class CSPNet(nn.Module):
         smooth = False,
         pred_type = False,
         pred_scalar = False,
-        property_dim = 32 # added to acomodate adapter module
+        am_hidden_dim = 64 # added to acomodate adapter module
     ):
         super(CSPNet, self).__init__()
 
@@ -177,11 +177,11 @@ class CSPNet(nn.Module):
         if self.pred_scalar:
             self.scalar_out = nn.Linear(hidden_dim, 1)
 
-        # Initialize AdapterModule
-        self.adapter = AdapterModule(input_dim=input_dim, hidden_dim=hidden_dim, property_dim=property_dim) # I need to figure out the size of node representation, that will be the input dim here
-        
         # Initialize SinusoidsEmbedding for property embedding
-        self.property_embedding = SinusoidsEmbedding(n_frequencies=10, n_space=3)
+        self.property_embedding = SinusoidsEmbedding(n_frequencies=num_freqs, n_space=3)
+        # Initialize AdapterModule
+        self.adapter = AdapterModule(input_dim=hidden_dim, am_hidden_dim=am_hidden_dim, property_dim=num_freqs*2*3)
+        # We need to make sure property_emb and property_dim have same size, assuming n_space=3. input_dim has to be same as node_feature size, (atom_latent_emb output size is hidden_dim)
 
     def select_symmetric_edges(self, tensor, mask, reorder_idx, inverse_neg):
         # Mask out counter-edges
@@ -307,17 +307,13 @@ class CSPNet(nn.Module):
         node_features = torch.cat([node_features, t_per_atom], dim=1)
         node_features = self.atom_latent_emb(node_features)
 
-        #getting g from property
+        # Getting property embedding
         if property is not None:
             property_emb = self.property_embedding(property)
+            property_label = True
         else:
             property_emb = None
-        #getting property_label if there is property
-        if property is not None:
-            property_label = torch.tensor([1])
-        else:
-            property_label = None
-
+            property_label = False
 
         for i in range(0, self.num_layers):
             node_features = self.adapter(node_features, property_emb, property_label=property_label)
