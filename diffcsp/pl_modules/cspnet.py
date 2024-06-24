@@ -307,6 +307,10 @@ class CSPNet(nn.Module):
         node_features = torch.cat([node_features, t_per_atom], dim=1)
         node_features = self.atom_latent_emb(node_features)
 
+        # we need to add context drop while training via torch.bernoulli
+        # property = torch.bernoulli(torch.full((property.size(0), property.size(1)), 0.5)).to(property.device)??
+        # property = torch.bernoulli( with p= 0.1 property ==  None else property)
+
         # Getting property embedding
         if property is not None:
             property_emb = self.property_embedding(property)
