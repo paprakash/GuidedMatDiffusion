@@ -128,7 +128,7 @@ class CSPDiffusion(BaseModule):
 
     @torch.no_grad()
     def sample(self, batch, step_lr = 1e-5):
-
+        
         batch_size = batch.num_graphs
 
         l_T, x_T = torch.randn([batch_size, 3, 3]).to(self.device), torch.rand([batch.num_nodes, 3]).to(self.device)
@@ -151,8 +151,10 @@ class CSPDiffusion(BaseModule):
 
         for t in tqdm(range(time_start, 0, -1)):
 
-            times = torch.full((batch_size, ), t, device = self.device)
+            ## double the batch ie and remove the context from the second half of the batch
 
+            times = torch.full((batch_size, ), t, device = self.device)
+            ## times = times.repeat(2)
             time_emb = self.time_embedding(times)
             
             alphas = self.beta_scheduler.alphas[t]
@@ -168,12 +170,21 @@ class CSPDiffusion(BaseModule):
 
             x_t = traj[t]['frac_coords']
             l_t = traj[t]['lattices']
+            ## x_t = traj[t]['frac_coords'].repeat(2, 1)  # Repeat x_t for doubled batch size
+            ## l_t = traj[t]['lattices'].repeat(2, 1, 1)  # Repeat l_t for doubled batch size
 
             if self.keep_coords:
                 x_t = x_T
+                ## x_t = x_T.repeat(2, 1)
 
             if self.keep_lattice:
                 l_t = l_T
+                ## l_t = l_T.repeat(2, 1, 1)
+
+            ## create context mask
+            ## context_mask = torch.zeros(doubled_batch_size, device=self.device)
+            ## context_mask[batch_size:] = 1  # Second half of the batch is context-free
+
 
             # PC-sampling refers to "Score-Based Generative Modeling through Stochastic Differential Equations"
             # Origin code : https://github.com/yang-song/score_sde/blob/main/sampling.py
@@ -182,36 +193,57 @@ class CSPDiffusion(BaseModule):
 
             rand_l = torch.randn_like(l_T) if t > 1 else torch.zeros_like(l_T)
             rand_x = torch.randn_like(x_T) if t > 1 else torch.zeros_like(x_T)
+            ## rand_l = torch.randn_like(l_T).repeat(2, 1, 1) if t > 1 else torch.zeros_like(l_T).repeat(2, 1, 1)
+            ## rand_x = torch.randn_like(x_T).repeat(2, 1) if t > 1 else torch.zeros_like(x_T).repeat(2, 1)
 
             step_size = step_lr * (sigma_x / self.sigma_scheduler.sigma_begin) ** 2
             # step_size = step_lr / (sigma_norm * (self.sigma_scheduler.sigma_begin) ** 2)
             std_x = torch.sqrt(2 * step_size)
 
+            ## add new argument in decoder for batch.property, where first half of the batch will have property and second half will not
             pred_l, pred_x = self.decoder(time_emb, batch.atom_types, x_t, l_t, batch.num_atoms, batch.batch)
-
+            ## pred_l, pred_x = self.decoder(time_emb, batch.atom_types.repeat(2), x_t, l_t, batch.num_atoms, batch.batch.repeat(2))
             pred_x = pred_x * torch.sqrt(sigma_norm)
 
-            x_t_minus_05 = x_t - step_size * pred_x + std_x * rand_x if not self.keep_coords else x_t
+            ## pred_x1 = pred_x[:batch_size]
+            ## pred_x2 = pred_x(second half)
+            ## pred_x = (1+guide_w)*pred_x1 - guide_w*pred_x2
 
+            x_t_minus_05 = x_t - step_size * pred_x + std_x * rand_x if not self.keep_coords else x_t
+            ## x_t_minus_05 = x_t[:batch_size] - step_size * pred_x + std_x * rand_x[:batch_size] if not self.keep_coords else x_t[:batch_size]
             l_t_minus_05 = l_t if not self.keep_lattice else l_t
+            ## l_t_minus_05 = l_t[:batch_size] if not self.keep_lattice else l_t[:batch_size]
 
             # Predictor
 
             rand_l = torch.randn_like(l_T) if t > 1 else torch.zeros_like(l_T)
             rand_x = torch.randn_like(x_T) if t > 1 else torch.zeros_like(x_T)
+            ## rand_l = torch.randn_like(l_t) if t > 1 else torch.zeros_like(l_t)
+            ## rand_x = torch.randn_like(x_t) if t > 1 else torch.zeros_like(x_t)
 
             adjacent_sigma_x = self.sigma_scheduler.sigmas[t-1] 
             step_size = (sigma_x ** 2 - adjacent_sigma_x ** 2)
             std_x = torch.sqrt((adjacent_sigma_x ** 2 * (sigma_x ** 2 - adjacent_sigma_x ** 2)) / (sigma_x ** 2))   
 
+            ## add new argument in decoder for batch.property, where first half of the batch will have property and second half will not
             pred_l, pred_x = self.decoder(time_emb, batch.atom_types, x_t_minus_05, l_t_minus_05, batch.num_atoms, batch.batch)
+            ## pred_l, pred_x = self.decoder(time_emb, batch.atom_types.repeat(2), x_t_minus_05.repeat(2, 1), l_t_minus_05.repeat(2, 1, 1), batch.num_atoms, batch.batch.repeat(2))
 
             pred_x = pred_x * torch.sqrt(sigma_norm)
 
+            ## pred_x1 = pred_x(first half)
+            ## pred_x2 = pred_x(second half)
+            ## pred_x = (1+guide_w)*pred_x1 - guide_w*pred_x2
+
             x_t_minus_1 = x_t_minus_05 - step_size * pred_x + std_x * rand_x if not self.keep_coords else x_t
+            ## x_t_minus_1 = x_t_minus_05[:batch_size] - step_size * pred_x + std_x * rand_x[:batch_size] if not self.keep_coords else x_t_minus_05[:batch_size]
+
+            ## pred_l1 = pred_l(first half)
+            ## pred_l2 = pred_l(second half)
+            ## pred_l = (1+guide_w)*pred_l1 - guide_w*pred_l2
 
             l_t_minus_1 = c0 * (l_t_minus_05 - c1 * pred_l) + sigmas * rand_l if not self.keep_lattice else l_t
-
+            ## l_t_minus_1 = c0 * (l_t_minus_05[:batch_size] - c1 * pred_l) + sigmas[:batch_size] * rand_l[:batch_size] if not self.keep_lattice else l_t_minus_05[:batch_size]
 
             traj[t - 1] = {
                 'num_atoms' : batch.num_atoms,
