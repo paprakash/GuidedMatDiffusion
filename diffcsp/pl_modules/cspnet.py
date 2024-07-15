@@ -120,7 +120,7 @@ class AdapterModule(nn.Module):
 
         return H_prime_L
 
-
+# TODO: swap out sinusoidal embedding, modify how model is instatiated with adapter modules added
 class CSPNet(nn.Module):
 
     def __init__(
@@ -178,9 +178,12 @@ class CSPNet(nn.Module):
             self.scalar_out = nn.Linear(hidden_dim, 1)
 
         # Initialize SinusoidsEmbedding for property embedding
+        # use sinusoidal embedding like is done with time
         self.property_embedding = SinusoidsEmbedding(n_frequencies=num_freqs, n_space=3)
-        # Initialize AdapterModule
-        self.adapter = AdapterModule(input_dim=hidden_dim, am_hidden_dim=am_hidden_dim, property_dim=num_freqs*2*3)
+        # Initialize AdapterModule->Need to intialize num_layers adapters each with their own weights
+        self.adapters = []
+        for i in range (num_layers):
+            self.adapters.append(AdapterModule(input_dim=hidden_dim, am_hidden_dim=am_hidden_dim, property_dim=num_freqs*2*3))
         # We need to make sure property_emb and property_dim have same size, assuming n_space=3. input_dim has to be same as node_feature size, (atom_latent_emb output size is hidden_dim)
 
     def select_symmetric_edges(self, tensor, mask, reorder_idx, inverse_neg):
