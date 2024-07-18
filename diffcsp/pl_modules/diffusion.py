@@ -76,6 +76,7 @@ class CSPDiffusion(BaseModule):
         self.time_embedding = SinusoidalTimeEmbeddings(self.time_dim)
         self.keep_lattice = self.hparams.cost_lattice < 1e-5
         self.keep_coords = self.hparams.cost_coord < 1e-5
+        self.p_uncond = self.hparams.p_uncond
 
     def forward(self, batch):
 
@@ -109,7 +110,9 @@ class CSPDiffusion(BaseModule):
         if self.keep_lattice:
             input_lattice = lattices
 
-        pred_l, pred_x = self.decoder(time_emb, batch.atom_types, input_frac_coords, input_lattice, batch.num_atoms, batch.batch)
+        # Need to apply property here, but before need to bernoulli sample 
+        property_indicator = torch.bernoulli(torch.ones(batch_size)*(1.-self.p_uncond))
+        pred_l, pred_x = self.decoder(time_emb, batch.atom_types, input_frac_coords, input_lattice, batch.num_atoms, batch.batch, batch.y, property_indicator)
 
         tar_x = d_log_p_wrapped_normal(sigmas_per_atom * rand_x, sigmas_per_atom) / torch.sqrt(sigmas_norm_per_atom)
 
@@ -200,10 +203,10 @@ class CSPDiffusion(BaseModule):
             print(f"batch.num_graphs shape: {batch.num_graphs}")
             """
             ## with context
-            pred_l1, pred_x1 = self.decoder(time_emb, batch.atom_types, x_t, l_t, batch.num_atoms, batch.batch) # add argument for property
+            pred_l1, pred_x1 = self.decoder(time_emb, batch.atom_types, x_t, l_t, batch.num_atoms, batch.batch, batch.y, torch.ones(batch_szie)) 
             pred_x1 = pred_x1 * torch.sqrt(sigma_norm)
             ## without context
-            pred_l2, pred_x2 = self.decoder(time_emb, batch.atom_types, x_t, l_t, batch.num_atoms, batch.batch)
+            pred_l2, pred_x2 = self.decoder(time_emb, batch.atom_types, x_t, l_t, batch.num_atoms, batch.batch, batch.y, torch.zeros(batch_size))
             pred_x2 = pred_x2 * torch.sqrt(sigma_norm)
 
             ## weighted score
@@ -224,10 +227,10 @@ class CSPDiffusion(BaseModule):
             std_x = torch.sqrt((adjacent_sigma_x ** 2 * (sigma_x ** 2 - adjacent_sigma_x ** 2)) / (sigma_x ** 2))   
 
             ## with context
-            pred_l1, pred_x1 = self.decoder(time_emb, batch.atom_types, x_t_minus_05, l_t_minus_05, batch.num_atoms, batch.batch) # add argument for property
+            pred_l1, pred_x1 = self.decoder(time_emb, batch.atom_types, x_t_minus_05, l_t_minus_05, batch.num_atoms, batch.batch, batch.y, torch.ones_like(time_emb)) 
             pred_x1 = pred_x1 * torch.sqrt(sigma_norm)
             ## without context
-            pred_l2, pred_x2 = self.decoder(time_emb, batch.atom_types, x_t_minus_05, l_t_minus_05, batch.num_atoms, batch.batch)
+            pred_l2, pred_x2 = self.decoder(time_emb, batch.atom_types, x_t_minus_05, l_t_minus_05, batch.num_atoms, batch.batch, batch.y, torch.zeros_like(time_emb))
             pred_x2 = pred_x2 * torch.sqrt(sigma_norm)
             ## weighted score
             pred_x = (1+guide_w)*pred_x1 - guide_w*pred_x2
