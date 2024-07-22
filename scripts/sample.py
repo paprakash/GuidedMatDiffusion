@@ -47,7 +47,7 @@ chemical_symbols = [
     'Rf', 'Db', 'Sg', 'Bh', 'Hs', 'Mt', 'Ds', 'Rg', 'Cn', 'Nh', 'Fl', 'Mc',
     'Lv', 'Ts', 'Og']
 
-def diffusion(loader, model, step_lr):
+def diffusion(loader, model, step_lr, band_gap):
 
     frac_coords = []
     num_atoms = []
@@ -58,7 +58,7 @@ def diffusion(loader, model, step_lr):
 
         if torch.cuda.is_available():
             batch.cuda()
-        outputs, traj = model.sample(batch, step_lr = step_lr)
+        outputs, traj = model.sample(batch, band_gap, step_lr = step_lr)
         frac_coords.append(outputs['frac_coords'].detach().cpu())
         num_atoms.append(outputs['num_atoms'].detach().cpu())
         atom_types.append(outputs['atom_types'].detach().cpu())
@@ -117,6 +117,9 @@ def get_pymatgen(crystal_array):
 def main(args):
     # load_data if do reconstruction.
     model_path = Path(args.model_path)
+    band_gap = torch.tensor([args.band_gap],device='cuda')
+    band_gap = band_gap.repeat(args.num_evals)
+    print (band_gap.shape)
     model, _, cfg = load_model(
         model_path, load_data=False)
 
@@ -132,7 +135,7 @@ def main(args):
     test_loader = DataLoader(test_set, batch_size = min(args.batch_size, args.num_evals))
 
     start_time = time.time()
-    (frac_coords, atom_types, lattices, lengths, angles, num_atoms) = diffusion(test_loader, model, args.step_lr)
+    (frac_coords, atom_types, lattices, lengths, angles, num_atoms) = diffusion(test_loader, model, args.step_lr, band_gap)
 
     crystal_list = get_crystals_list(frac_coords, atom_types, lengths, angles, num_atoms)
 
@@ -156,6 +159,7 @@ if __name__ == '__main__':
     parser.add_argument('--num_evals', default=1, type=int)
     parser.add_argument('--batch_size', default=500, type=int)
     parser.add_argument('--step_lr', default=1e-5, type=float)
+    parser.add_argument('--band_gap', default=0.0, type=float)
 
     args = parser.parse_args()
 
