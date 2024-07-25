@@ -7,7 +7,7 @@ wandb:
   project: diffcsp
   entity: null
   log_model: True
-  mode: 'online'
+  mode: 'offline'
   group: ${expname}
 
 wandb_watch:
