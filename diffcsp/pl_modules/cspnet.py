@@ -9,6 +9,7 @@ from torch_geometric.utils import to_dense_adj, dense_to_sparse
 from einops import rearrange, repeat
 
 from diffcsp.common.data_utils import lattice_params_to_matrix_torch, get_pbc_distances, radius_graph_pbc, frac_to_cart_coords, repeat_blocks
+from diffcsp.pl_modules.diffusion import SinusoidalTimeEmbeddings 
 
 MAX_ATOMIC_NUM=100
 
@@ -93,12 +94,13 @@ class CSPLayer(nn.Module):
         node_output = self.node_model(node_features, edge_features, edge_index)
         return node_input + node_output
 
-
+# TODO: Change dimensionality of embedding and indicator->interleave using num_atoms and batch_size
 class AdapterModule(nn.Module):
     def __init__(self, input_dim, am_hidden_dim, property_dim):  # input_dim=dim of hidden variable, and property_dim=property embedding
         super(AdapterModule, self).__init__()
         # Adapter is a two-layer MLP
         self.adapter_fc1 = nn.Linear(property_dim, am_hidden_dim)
+        # TODO: Make choosing activation possible
         self.adapter_relu = nn.ReLU() # not sure if matergen does this but it seems a good idea
         self.adapter_fc2 = nn.Linear(am_hidden_dim, input_dim)
         
@@ -106,20 +108,23 @@ class AdapterModule(nn.Module):
         self.mixin = nn.Linear(input_dim, input_dim, bias=False)
         nn.init.zeros_(self.mixin.weight)  # Zero-initialize mixin weights
 
-    def forward(self, H_L, property_emb, property_label=False):
-        if property_label:
-            f_adapter_L = self.adapter_fc1(property_emb)
-            f_adapter_L = self.adapter_relu(f_adapter_L)
-            f_adapter_L = self.adapter_fc2(f_adapter_L)
+    # Add activation, change loop to multiplication so we can nullify property within a batch
+    def forward(self, H_L, property_emb, property_indicator, num_atoms):
+        f_adapter_L = self.adapter_fc1(property_emb)
+        f_adapter_L = self.adapter_relu(f_adapter_L)
+        f_adapter_L = self.adapter_fc2(f_adapter_L)
+        # add another activation?
+        f_adapter_L = self.adapter_relu(f_adapter_L)
             
-            f_mixin_L = self.mixin(f_adapter_L)
-            
-            H_prime_L = H_L + f_mixin_L
-        else:
-            H_prime_L = H_L
+        f_mixin_L = self.mixin(f_adapter_L)
+
+        result = property_indicator.view(-1,1,1) * f_mixin_L
+        repeated_result = result.repeat_interleave(num_atoms, dim=0)
+        
+
+        H_prime_L = H_L + torch.squeeze(repeated_result)
 
         return H_prime_L
-
 
 class CSPNet(nn.Module):
 
@@ -140,7 +145,8 @@ class CSPNet(nn.Module):
         smooth = False,
         pred_type = False,
         pred_scalar = False,
-        am_hidden_dim = 64 # added to acomodate adapter module
+        prop_embed_dim= 128, # added to acomodate adapter module
+        am_hidden_dim = 128 # added to acomodate adapter module
     ):
         super(CSPNet, self).__init__()
 
@@ -178,10 +184,15 @@ class CSPNet(nn.Module):
             self.scalar_out = nn.Linear(hidden_dim, 1)
 
         # Initialize SinusoidsEmbedding for property embedding
-        self.property_embedding = SinusoidsEmbedding(n_frequencies=num_freqs, n_space=3)
-        # Initialize AdapterModule
-        self.adapter = AdapterModule(input_dim=hidden_dim, am_hidden_dim=am_hidden_dim, property_dim=num_freqs*2*3)
-        # We need to make sure property_emb and property_dim have same size, assuming n_space=3. input_dim has to be same as node_feature size, (atom_latent_emb output size is hidden_dim)
+        #self.property_embedding = SinusoidsEmbedding(n_frequencies=num_freqs, n_space=3)
+        
+        # use sinusoidal embedding like is done with time
+        self.property_embedding = SinusoidalTimeEmbeddings(prop_embed_dim)
+        
+        # Initialize AdapterModule->Need to intialize num_layers adapters each with their own weights
+        self.adapters = []
+        for i in range (num_layers):
+            self.adapters.append(AdapterModule(input_dim=hidden_dim, am_hidden_dim=am_hidden_dim, property_dim=prop_embed_dim))
 
     def select_symmetric_edges(self, tensor, mask, reorder_idx, inverse_neg):
         # Mask out counter-edges
@@ -294,7 +305,7 @@ class CSPNet(nn.Module):
             return edge_index_new, -edge_vector_new
             
 
-    def forward(self, t, atom_types, frac_coords, lattices, num_atoms, node2graph, property=None):
+    def forward(self, t, atom_types, frac_coords, lattices, num_atoms, node2graph, property, property_indicator):
 
         edges, frac_diff = self.gen_edges(num_atoms, frac_coords, lattices, node2graph)
         edge2graph = node2graph[edges[0]]
@@ -307,20 +318,11 @@ class CSPNet(nn.Module):
         node_features = torch.cat([node_features, t_per_atom], dim=1)
         node_features = self.atom_latent_emb(node_features)
 
-        # we need to add context drop while training via torch.bernoulli
-        # property = torch.bernoulli(torch.full((property.size(0), property.size(1)), 0.5)).to(property.device)??
-        # property = torch.bernoulli( with p= 0.1 property ==  None else property)
-
         # Getting property embedding
-        if property is not None:
-            property_emb = self.property_embedding(property)
-            property_label = True
-        else:
-            property_emb = None
-            property_label = False
+        property_emb = self.property_embedding(property)
 
         for i in range(0, self.num_layers):
-            node_features = self.adapter(node_features, property_emb, property_label=property_label)
+            node_features = self.adapters[i](node_features, property_emb, property_indicator, num_atoms)
             node_features = self._modules["csp_layer_%d" % i](node_features, frac_coords, lattices, edges, edge2graph, frac_diff = frac_diff)
 
         if self.ln:

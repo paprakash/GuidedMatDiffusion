@@ -11,3 +11,5 @@ max_neighbors: ${model.max_neighbors}
 cutoff: ${model.radius}
 ln: true
 ip: true
+prop_embed_dim: 64
+am_hidden_dim: 128
