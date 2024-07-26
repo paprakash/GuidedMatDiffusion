@@ -94,7 +94,6 @@ class CSPLayer(nn.Module):
         node_output = self.node_model(node_features, edge_features, edge_index)
         return node_input + node_output
 
-# todo: Change dimensionality of embedding and indicator->interleave using num_atoms and batch_size
 class AdapterModule(nn.Module):
     def __init__(self, input_dim, am_hidden_dim, property_dim):  # input_dim=dim of hidden variable, and property_dim=property embedding
         super(AdapterModule, self).__init__()
@@ -118,7 +117,7 @@ class AdapterModule(nn.Module):
             
         f_mixin_L = self.mixin(f_adapter_L)
 
-        result = property_indicator.view(-1,1,1) * f_mixin_L
+        result = property_indicator.view(-1,1).to(f_mixin_L.device) * f_mixin_L
         repeated_result = result.repeat_interleave(num_atoms, dim=0)
         
 
