@@ -77,6 +77,7 @@ class CSPDiffusion(BaseModule):
         self.keep_lattice = self.hparams.cost_lattice < 1e-5
         self.keep_coords = self.hparams.cost_coord < 1e-5
         self.p_uncond = self.hparams.p_uncond
+        self.guide_w = self.hparams.guide_w
 
     def forward(self, batch):
 
@@ -211,8 +212,7 @@ class CSPDiffusion(BaseModule):
             pred_x2 = pred_x2 * torch.sqrt(sigma_norm)
 
             ## weighted score
-            guide_w = 1.0
-            pred_x = (1+guide_w)*pred_x1 - guide_w*pred_x2
+            pred_x = (1+self.guide_w)*pred_x1 - self.guide_w*pred_x2
 
             x_t_minus_05 = x_t - step_size * pred_x + std_x * rand_x if not self.keep_coords else x_t
             l_t_minus_05 = l_t if not self.keep_lattice else l_t
@@ -234,8 +234,8 @@ class CSPDiffusion(BaseModule):
             pred_l2, pred_x2 = self.decoder(time_emb, batch.atom_types, x_t_minus_05, l_t_minus_05, batch.num_atoms, batch.batch, band_gap, torch.zeros(batch_size))
             pred_x2 = pred_x2 * torch.sqrt(sigma_norm)
             ## weighted score
-            pred_x = (1+guide_w)*pred_x1 - guide_w*pred_x2
-            pred_l = (1+guide_w)*pred_l1 - guide_w*pred_l2
+            pred_x = (1+self.guide_w)*pred_x1 - self.guide_w*pred_x2
+            pred_l = (1+self.guide_w)*pred_l1 - self.guide_w*pred_l2
 
             x_t_minus_1 = x_t_minus_05 - step_size * pred_x + std_x * rand_x if not self.keep_coords else x_t
             l_t_minus_1 = c0 * (l_t_minus_05 - c1 * pred_l) + sigmas * rand_l if not self.keep_lattice else l_t
