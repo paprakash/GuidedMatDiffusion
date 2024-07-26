@@ -94,7 +94,7 @@ class CSPLayer(nn.Module):
         node_output = self.node_model(node_features, edge_features, edge_index)
         return node_input + node_output
 
-# TODO: Change dimensionality of embedding and indicator->interleave using num_atoms and batch_size
+# todo: Change dimensionality of embedding and indicator->interleave using num_atoms and batch_size
 class AdapterModule(nn.Module):
     def __init__(self, input_dim, am_hidden_dim, property_dim):  # input_dim=dim of hidden variable, and property_dim=property embedding
         super(AdapterModule, self).__init__()
@@ -183,16 +183,21 @@ class CSPNet(nn.Module):
         if self.pred_scalar:
             self.scalar_out = nn.Linear(hidden_dim, 1)
 
-        # Initialize SinusoidsEmbedding for property embedding
-        #self.property_embedding = SinusoidsEmbedding(n_frequencies=num_freqs, n_space=3)
+        # Define your device
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         
         # use sinusoidal embedding like is done with time
         self.property_embedding = SinusoidalTimeEmbeddings(prop_embed_dim)
         
         # Initialize AdapterModule->Need to intialize num_layers adapters each with their own weights
-        self.adapters = []
-        for i in range (num_layers):
-            self.adapters.append(AdapterModule(input_dim=hidden_dim, am_hidden_dim=am_hidden_dim, property_dim=prop_embed_dim))
+        #self.adapters = []
+        self.adapters = torch.nn.ModuleList()
+        #for i in range (num_layers):
+        for i in range (self.num_layers):
+            #self.adapters.append(AdapterModule(input_dim=hidden_dim, am_hidden_dim=am_hidden_dim, property_dim=prop_embed_dim))
+            adapter = AdapterModule(input_dim=hidden_dim, am_hidden_dim=am_hidden_dim, property_dim=prop_embed_dim)
+            adapter = adapter.to(device)  # Move the adapter to the specified device
+            self.adapters.append(adapter)
 
     def select_symmetric_edges(self, tensor, mask, reorder_idx, inverse_neg):
         # Mask out counter-edges
@@ -320,6 +325,9 @@ class CSPNet(nn.Module):
 
         # Getting property embedding
         property_emb = self.property_embedding(property)
+
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        property_emb = property_emb.to(device)
 
         for i in range(0, self.num_layers):
             node_features = self.adapters[i](node_features, property_emb, property_indicator, num_atoms)
