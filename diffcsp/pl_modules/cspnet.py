@@ -325,6 +325,9 @@ class CSPNet(nn.Module):
         # Getting property embedding
         property_emb = self.property_embedding(property)
 
+        # property doesn't need to be put on device especifically, its already on the device.
+        # but we do need to put property_indicator on the device; which is done in diffusion.py
+
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         property_emb = property_emb.to(device)
 
