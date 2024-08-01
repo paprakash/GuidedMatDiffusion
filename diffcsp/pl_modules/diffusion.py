@@ -113,7 +113,9 @@ class CSPDiffusion(BaseModule):
 
         # Need to apply property here, but before need to bernoulli sample 
         property_indicator = torch.bernoulli(torch.ones(batch_size)*(1.-self.p_uncond))
-        pred_l, pred_x = self.decoder(time_emb, batch.atom_types, input_frac_coords, input_lattice, batch.num_atoms, batch.batch, batch.y, property_indicator)
+        property_indicator = property_indicator.to(self.device)
+        property_train = torch.squeeze(batch.y)
+        pred_l, pred_x = self.decoder(time_emb, batch.atom_types, input_frac_coords, input_lattice, batch.num_atoms, batch.batch, property_train, property_indicator)
 
         tar_x = d_log_p_wrapped_normal(sigmas_per_atom * rand_x, sigmas_per_atom) / torch.sqrt(sigmas_norm_per_atom)
 

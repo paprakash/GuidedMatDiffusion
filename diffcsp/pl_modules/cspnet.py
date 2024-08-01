@@ -117,10 +117,9 @@ class AdapterModule(nn.Module):
             
         f_mixin_L = self.mixin(f_adapter_L)
 
-        result = property_indicator.view(-1,1).to(f_mixin_L.device) * f_mixin_L
+        result = property_indicator.view(-1,1) * f_mixin_L
         repeated_result = result.repeat_interleave(num_atoms, dim=0)
         
-
         H_prime_L = H_L + torch.squeeze(repeated_result)
 
         return H_prime_L
@@ -144,7 +143,7 @@ class CSPNet(nn.Module):
         smooth = False,
         pred_type = False,
         pred_scalar = False,
-        prop_embed_dim= 128, # added to acomodate adapter module
+        prop_embed_dim= 64, # added to acomodate adapter module
         am_hidden_dim = 128 # added to acomodate adapter module
     ):
         super(CSPNet, self).__init__()
@@ -181,22 +180,17 @@ class CSPNet(nn.Module):
         self.pred_scalar = pred_scalar
         if self.pred_scalar:
             self.scalar_out = nn.Linear(hidden_dim, 1)
-
-        # Define your device
-        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         
         # use sinusoidal embedding like is done with time
         self.property_embedding = SinusoidalTimeEmbeddings(prop_embed_dim)
         
         # Initialize AdapterModule->Need to intialize num_layers adapters each with their own weights
-        #self.adapters = []
         self.adapters = torch.nn.ModuleList()
         #for i in range (num_layers):
         for i in range (self.num_layers):
             #self.adapters.append(AdapterModule(input_dim=hidden_dim, am_hidden_dim=am_hidden_dim, property_dim=prop_embed_dim))
             adapter = AdapterModule(input_dim=hidden_dim, am_hidden_dim=am_hidden_dim, property_dim=prop_embed_dim)
-            adapter = adapter.to(device)  # Move the adapter to the specified device
-            self.adapters.append(adapter)
+            self.adapters.append(adapter) # already on CUDA
 
     def select_symmetric_edges(self, tensor, mask, reorder_idx, inverse_neg):
         # Mask out counter-edges
@@ -323,13 +317,7 @@ class CSPNet(nn.Module):
         node_features = self.atom_latent_emb(node_features)
 
         # Getting property embedding
-        property_emb = self.property_embedding(property)
-
-        # property doesn't need to be put on device especifically, its already on the device.
-        # but we do need to put property_indicator on the device; which is done in diffusion.py
-
-        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        property_emb = property_emb.to(device)
+        property_emb = self.property_embedding(property) # property is on proper device
 
         for i in range(0, self.num_layers):
             node_features = self.adapters[i](node_features, property_emb, property_indicator, num_atoms)
