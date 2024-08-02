@@ -117,14 +117,17 @@ def get_pymatgen(crystal_array):
 def main(args):
     # load_data if do reconstruction.
     model_path = Path(args.model_path)
-    band_gap = torch.tensor([args.band_gap],device='cuda')
+
+    # Check if GPU is available, otherwise use CPU
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    band_gap = torch.tensor([args.band_gap], device=device)# Create the tensor and put it on the correct device
     band_gap = band_gap.repeat(args.num_evals)
-    print (band_gap.shape)
+    print ("Tokan shape", band_gap.shape)
     model, _, cfg = load_model(
         model_path, load_data=False)
 
-    if torch.cuda.is_available():
-        model.to('cuda')
+    # Move the model to the correct device
+    model.to(device)
 
     tar_dir = os.path.join(args.save_path, args.formula)
     os.makedirs(tar_dir, exist_ok=True)
