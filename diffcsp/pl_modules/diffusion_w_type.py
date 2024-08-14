@@ -139,7 +139,7 @@ class CSPDiffusion(BaseModule):
         }
 
     @torch.no_grad()
-    def sample(self, batch, diff_ratio = 1.0, step_lr = 1e-5):
+    def sample(self, batch, band_gap, diff_ratio = 1.0, step_lr = 1e-5):
 
 
         batch_size = batch.num_graphs
@@ -197,11 +197,15 @@ class CSPDiffusion(BaseModule):
 
             step_size = step_lr * (sigma_x / self.sigma_scheduler.sigma_begin) ** 2
             std_x = torch.sqrt(2 * step_size)
-
-            pred_l, pred_x, pred_t = self.decoder(time_emb, t_t, x_t, l_t, batch.num_atoms, batch.batch)
-
-            pred_x = pred_x * torch.sqrt(sigma_norm)
-
+            # with context
+            pred_l1, pred_x1, pred_t1 = self.decoder(time_emb, t_t, x_t, l_t, batch.num_atoms, batch.batch, band_gap, torch.ones(batch_size).to(self.device))
+            pred_x1 = pred_x1 * torch.sqrt(sigma_norm)
+            # without context
+            pred_l2, pred_x2, pred_t2 = self.decoder(time_emb, t_t, x_t, l_t, batch.num_atoms, batch.batch, band_gap, torch.zeros(batch_size).to(self.device))
+            pred_x2 = pred_x2 * torch.sqrt(sigma_norm)
+            
+            # weighted score
+            pred_x = (1+self.guide_w)*pred_x1 - self.guide_w*pred_x2
             x_t_minus_05 = x_t - step_size * pred_x + std_x * rand_x if not self.keep_coords else x_t
 
             l_t_minus_05 = l_t
@@ -219,10 +223,17 @@ class CSPDiffusion(BaseModule):
             step_size = (sigma_x ** 2 - adjacent_sigma_x ** 2)
             std_x = torch.sqrt((adjacent_sigma_x ** 2 * (sigma_x ** 2 - adjacent_sigma_x ** 2)) / (sigma_x ** 2))   
 
+            # with context
+            pred_l1, pred_x1, pred_t1 = self.decoder(time_emb, t_t, x_t, l_t, batch.num_atoms, batch.batch, band_gap, torch.ones(batch_size).to(self.device))
+            pred_x1 = pred_x1 * torch.sqrt(sigma_norm)
+            # without context
+            pred_l2, pred_x2, pred_t2 = self.decoder(time_emb, t_t, x_t, l_t, batch.num_atoms, batch.batch, band_gap, torch.zeros(batch_size).to(self.device))
+            pred_x2 = pred_x2 * torch.sqrt(sigma_norm)
 
-            pred_l, pred_x, pred_t = self.decoder(time_emb, t_t_minus_05, x_t_minus_05, l_t_minus_05, batch.num_atoms, batch.batch)
-
-            pred_x = pred_x * torch.sqrt(sigma_norm)
+            ## weighted score
+            pred_x = (1+self.guide_w)*pred_x1 - self.guide_w*pred_x2
+            pred_l = (1+self.guide_w)*pred_l1 - self.guide_w*pred_l2
+            pred_t = (1+self.guide_w)*pred_t1 - self.guide_w*pred_t2
 
             x_t_minus_1 = x_t_minus_05 - step_size * pred_x + std_x * rand_x if not self.keep_coords else x_t
 
