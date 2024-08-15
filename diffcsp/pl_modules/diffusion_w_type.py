@@ -77,6 +77,8 @@ class CSPDiffusion(BaseModule):
         self.time_embedding = SinusoidalTimeEmbeddings(self.time_dim)
         self.keep_lattice = self.hparams.cost_lattice < 1e-5
         self.keep_coords = self.hparams.cost_coord < 1e-5
+        self.p_uncond = self.hparams.p_uncond
+        self.guide_w = self.hparams.guide_w
 
 
 
@@ -117,7 +119,13 @@ class CSPDiffusion(BaseModule):
         if self.keep_lattice:
             input_lattice = lattices
 
-        pred_l, pred_x, pred_t = self.decoder(time_emb, atom_type_probs, input_frac_coords, input_lattice, batch.num_atoms, batch.batch)
+
+        # Need to apply property here, but before need to bernoulli sample
+        property_indicator = torch.bernoulli(torch.ones(batch_size)*(1.-self.p_uncond))
+        property_indicator = property_indicator.to(self.device)
+        property_train = torch.squeeze(batch.y)
+
+        pred_l, pred_x, pred_t = self.decoder(time_emb, atom_type_probs, input_frac_coords, input_lattice, batch.num_atoms, batch.batch, property_train, property_indicator)
 
         tar_x = d_log_p_wrapped_normal(sigmas_per_atom * rand_x, sigmas_per_atom) / torch.sqrt(sigmas_norm_per_atom)
 
