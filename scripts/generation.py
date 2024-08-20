@@ -74,7 +74,7 @@ train_dist = {
 }
 
 
-def diffusion(loader, model, step_lr):
+def diffusion(loader, model, step_lr, band_gap):
 
     frac_coords = []
     num_atoms = []
@@ -85,7 +85,7 @@ def diffusion(loader, model, step_lr):
 
         if torch.cuda.is_available():
             batch.cuda()
-        outputs, traj = model.sample(batch, step_lr = step_lr)
+        outputs, traj = model.sample(batch, band_gap, step_lr = step_lr)
         frac_coords.append(outputs['frac_coords'].detach().cpu())
         num_atoms.append(outputs['num_atoms'].detach().cpu())
         atom_types.append(outputs['atom_types'].detach().cpu())
@@ -100,6 +100,19 @@ def diffusion(loader, model, step_lr):
     return (
         frac_coords, atom_types, lattices, lengths, angles, num_atoms
     )
+
+
+def get_pymatgen(crystal_array):
+    frac_coords = crystal_array['frac_coords']
+    atom_types = crystal_array['atom_types']
+    atom_types = np.argmax(atom_types, axis=-1) + 1
+    lengths = crystal_array['lengths']
+    angles = crystal_array['angles']
+    structure = Structure(
+            lattice=Lattice.from_parameters(
+                *(lengths.tolist() + angles.tolist())),
+            species=atom_types, coords=frac_coords, coords_are_cartesian=False)
+    return structure
 
 class SampleDataset(Dataset):
 
@@ -130,10 +143,13 @@ def main(args):
     model_path = Path(args.model_path)
     model, _, cfg = load_model(
         model_path, load_data=False)
-
+    
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu") 
     if torch.cuda.is_available():
         model.to('cuda')
 
+    band_gap = torch.tensor([args.band_gap], device=device)
+    band_gap = band_gap.repeat(args.batch_size)
     print('Evaluate the diffusion model.')
 
     test_set = SampleDataset(args.dataset, args.batch_size * args.num_batches_to_samples)
@@ -144,7 +160,23 @@ def main(args):
     print(step_lr)
 
     start_time = time.time()
-    (frac_coords, atom_types, lattices, lengths, angles, num_atoms) = diffusion(test_loader, model, step_lr)
+    (frac_coords, atom_types, lattices, lengths, angles, num_atoms) = diffusion(test_loader, model, step_lr, band_gap)
+
+
+    crystal_list = get_crystals_list(frac_coords, atom_types, lengths, angles, num_atoms)
+    print (len(crystal_list))
+    structure_list = [get_pymatgen(i) for i in crystal_list]
+    # old way wasn't working???
+    # strcuture_list = p_map(get_pymatgen, crystal_list)
+
+    os.makedirs(args.save_path, exist_ok=True)
+    for i,structure in enumerate(structure_list):
+        tar_file = os.path.join(args.save_path, f"{i+1}.cif")
+        if structure is not None:
+            writer = CifWriter(structure)
+            writer.write_file(tar_file)
+        else:
+            print(f"{i+1} Error Structure.")
 
     if args.label == '':
         gen_out_name = 'eval_gen.pt'
@@ -166,10 +198,12 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--model_path', required=True)
     parser.add_argument('--dataset', required=True)
+    parser.add_argument('--save_path', required=True)
     parser.add_argument('--step_lr', default=-1, type=float)
-    parser.add_argument('--num_batches_to_samples', default=20, type=int)
-    parser.add_argument('--batch_size', default=500, type=int)
+    parser.add_argument('--num_batches_to_samples', default=1, type=int)
+    parser.add_argument('--batch_size', default=50, type=int)
     parser.add_argument('--label', default='')
+    parser.add_argument('--band_gap', default=0.0, type=float)
     args = parser.parse_args()
 
 
