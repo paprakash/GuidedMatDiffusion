@@ -27,3 +27,6 @@ model_checkpoints:
   save_top_k: 1
   verbose: False
   save_last: False
+
+# Added for specifying the checkpoint path
+ckpt_path: null  # Default is null, meaning no checkpoint is used unless specified
