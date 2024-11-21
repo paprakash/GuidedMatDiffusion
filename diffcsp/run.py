@@ -104,6 +104,8 @@ def run(cfg: DictConfig) -> None:
         _recursive_=False,
     )
 
+    # Debugging model initialization
+    hydra.utils.log.info(f"Model initialized with parameters: {list(model.state_dict().keys())[:10]}")
     # Pass scaler from datamodule to model
     hydra.utils.log.info(f"Passing scaler from datamodule to model <{datamodule.scaler}>")
     if datamodule.scaler is not None:
@@ -153,11 +155,17 @@ def run(cfg: DictConfig) -> None:
         hydra.utils.log.info(f"Loading model state dict from checkpoint: {ckpt}")
         # checkpoint = torch.load(ckpt, map_location=torch.device("cpu"))
         checkpoint = torch.load(ckpt, map_location=lambda storage, loc: storage.cuda() if torch.cuda.is_available() else storage)
+        # Debugging the checkpoint keys
+        hydra.utils.log.info(f"Checkpoint keys: {list(checkpoint['state_dict'].keys())[:10]}")  # Print first 10 keys
+
         missing_keys, unexpected_keys = model.load_state_dict(checkpoint["state_dict"], strict=False)
         if missing_keys:
             hydra.utils.log.warning(f"Missing keys during checkpoint loading: {missing_keys}")
         if unexpected_keys:
             hydra.utils.log.warning(f"Unexpected keys in checkpoint: {unexpected_keys}")
+        # Print an example weight to confirm loading
+        param_name = 'decoder.node_embedding.weight'  # Replace with a key relevant to your model
+        print(f"Loaded weight for {param_name} (before training): {model.state_dict()[param_name][:5]}")
 
     # # Load checkpoint (if exist)
     # ckpts = list(hydra_dir.glob('*.ckpt'))
@@ -182,8 +190,11 @@ def run(cfg: DictConfig) -> None:
 
     log_hyperparameters(trainer=trainer, model=model, cfg=cfg)
 
+    # Print a subset of a weight before training
+    #print(f"Before training, {param_name}: {model.state_dict()[param_name][:5]}") # should be remove if no ckpt
     hydra.utils.log.info("Starting training!")
-    trainer.fit(model=model, datamodule=datamodule, ckpt_path=ckpt)
+    trainer.fit(model=model, datamodule=datamodule)#, ckpt_path=ckpt) we use the manually loaded checkpoint and instert the weights into the model before with strict=False
+    #print(f"After training, {param_name}: {model.state_dict()[param_name][:5]}") # should be remove if no ckpt
 
     hydra.utils.log.info("Starting testing!")
     trainer.test(datamodule=datamodule)
