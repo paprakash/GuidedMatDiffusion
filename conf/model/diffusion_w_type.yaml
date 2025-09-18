@@ -8,7 +8,7 @@ max_neighbors: 20  # maximum number of neighbors for OTF graph bulding in decode
 radius: 7.  # maximum search radius for OTF graph building in decoder
 timesteps: 1000
 p_uncond: 0.2
-guide_w: 1.0  # weigh of classifer free guidance
+##guide_w: 2.0  # weigh of classifer free guidance, change the ckpt yaml file
 
 defaults:
   - decoder: cspnet

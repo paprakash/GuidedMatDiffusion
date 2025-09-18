@@ -1,4 +1,4 @@
-root_path: ${oc.env:PROJECT_ROOT}/data/supercond_7
+root_path: ${oc.env:PROJECT_ROOT}/data/supccomb_12
 prop: tcad
 num_targets: 1
 # prop: scaled_lattice
@@ -9,9 +9,9 @@ graph_method: crystalnn
 lattice_scale_method: scale_length
 preprocess_workers: 30
 readout: mean
-max_atoms: 10
+max_atoms: 12
 otf_graph: false
-eval_model_name: supercond7
+eval_model_name: supccomb12
 tolerance: 0.1
 
 use_space_group: false

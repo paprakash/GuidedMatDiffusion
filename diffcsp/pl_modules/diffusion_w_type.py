@@ -78,7 +78,7 @@ class CSPDiffusion(BaseModule):
         self.keep_lattice = self.hparams.cost_lattice < 1e-5
         self.keep_coords = self.hparams.cost_coord < 1e-5
         self.p_uncond = self.hparams.p_uncond
-        self.guide_w = self.hparams.guide_w
+        ##self.guide_w = self.hparams.guide_w
 
 
 
@@ -147,7 +147,7 @@ class CSPDiffusion(BaseModule):
         }
 
     @torch.no_grad()
-    def sample(self, batch, band_gap, diff_ratio = 1.0, step_lr = 1e-5):
+    def sample(self, batch, band_gap, guide_w, diff_ratio = 1.0, step_lr = 1e-5):
 
 
         batch_size = batch.num_graphs
@@ -197,6 +197,7 @@ class CSPDiffusion(BaseModule):
             if self.keep_lattice:
                 l_t = l_T
 
+            print("CFG Weight", guide_w)
             # Corrector
 
             rand_l = torch.randn_like(l_T) if t > 1 else torch.zeros_like(l_T)
@@ -213,7 +214,7 @@ class CSPDiffusion(BaseModule):
             pred_x2 = pred_x2 * torch.sqrt(sigma_norm)
             
             # weighted score
-            pred_x = (1+self.guide_w)*pred_x1 - self.guide_w*pred_x2
+            pred_x = (1+guide_w)*pred_x1 - guide_w*pred_x2
             x_t_minus_05 = x_t - step_size * pred_x + std_x * rand_x if not self.keep_coords else x_t
 
             l_t_minus_05 = l_t
@@ -239,9 +240,9 @@ class CSPDiffusion(BaseModule):
             pred_x2 = pred_x2 * torch.sqrt(sigma_norm)
 
             ## weighted score
-            pred_x = (1+self.guide_w)*pred_x1 - self.guide_w*pred_x2
-            pred_l = (1+self.guide_w)*pred_l1 - self.guide_w*pred_l2
-            pred_t = (1+self.guide_w)*pred_t1 - self.guide_w*pred_t2
+            pred_x = (1+guide_w)*pred_x1 - guide_w*pred_x2
+            pred_l = (1+guide_w)*pred_l1 - guide_w*pred_l2
+            pred_t = (1+guide_w)*pred_t1 - guide_w*pred_t2
 
             x_t_minus_1 = x_t_minus_05 - step_size * pred_x + std_x * rand_x if not self.keep_coords else x_t
 

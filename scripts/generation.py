@@ -81,11 +81,24 @@ train_dist = {
                     0.014607185155941572,
                     0.0890248716936439,
                     0.0005921831819976313,
-                    0.0035530990919857876]
+                    0.0035530990919857876],
+    'supccomb_12' : [0.0,
+                    0.003132613992342499,
+                    0.01983988861816916,
+                    0.07518273581621998,
+                    0.5200139227288548,
+                    0.10111381830838845,
+                    0.1395753567699269,
+                    0.014792899408284023,
+                    0.09484859032370345,
+                    0.001740341106856944,
+                    0.004872955099199443,
+                    0.0,
+                    0.024886877828054297]
 }
 
 
-def diffusion(loader, model, step_lr, band_gap):
+def diffusion(loader, model, step_lr, band_gap, guide_w):
 
     frac_coords = []
     num_atoms = []
@@ -96,7 +109,7 @@ def diffusion(loader, model, step_lr, band_gap):
 
         if torch.cuda.is_available():
             batch.cuda()
-        outputs, traj = model.sample(batch, band_gap, step_lr = step_lr)
+        outputs, traj = model.sample(batch, band_gap, guide_w, step_lr = step_lr)
         frac_coords.append(outputs['frac_coords'].detach().cpu())
         num_atoms.append(outputs['num_atoms'].detach().cpu())
         atom_types.append(outputs['atom_types'].detach().cpu())
@@ -171,7 +184,7 @@ def main(args):
     print(step_lr)
 
     start_time = time.time()
-    (frac_coords, atom_types, lattices, lengths, angles, num_atoms) = diffusion(test_loader, model, step_lr, band_gap)
+    (frac_coords, atom_types, lattices, lengths, angles, num_atoms) = diffusion(test_loader, model, step_lr, band_gap, args.guide_w)
 
 
     crystal_list = get_crystals_list(frac_coords, atom_types, lengths, angles, num_atoms)
@@ -215,6 +228,7 @@ if __name__ == '__main__':
     parser.add_argument('--batch_size', default=50, type=int)
     parser.add_argument('--label', default='')
     parser.add_argument('--band_gap', default=0.0, type=float)
+    parser.add_argument('--guide_w', default=0.0, type=float)
     args = parser.parse_args()
 
 

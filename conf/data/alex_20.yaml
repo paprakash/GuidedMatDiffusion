@@ -1,5 +1,5 @@
-root_path: ${oc.env:PROJECT_ROOT}/data/supercond_7
-prop: tcad
+root_path: ${oc.env:PROJECT_ROOT}/data/alex_20
+prop: eah
 num_targets: 1
 # prop: scaled_lattice
 # num_targets: 6
@@ -9,15 +9,15 @@ graph_method: crystalnn
 lattice_scale_method: scale_length
 preprocess_workers: 30
 readout: mean
-max_atoms: 10
+max_atoms: 20
 otf_graph: false
-eval_model_name: supercond7
+eval_model_name: alex20
 tolerance: 0.1
 
 use_space_group: false
 use_pos_index: false
 train_max_epochs: 1500
-early_stopping_patience: 200
+early_stopping_patience: 100000
 teacher_forcing_max_epoch: 500
 
 
@@ -76,6 +76,11 @@ datamodule:
     test: 0
 
   batch_size:
-    train: 256
-    val: 128
-    test: 128
+    train: 4096
+    val: 4096
+    test: 1024
+
+  # batch_size:
+  #   train: 1024
+  #   val: 1024
+  #   test: 256
