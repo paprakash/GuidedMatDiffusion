@@ -8,7 +8,7 @@ Implemetation guided diffusion using property embedding and classifier free guid
 
 ![Overview](fig/workflow.png "Workflow")
 
-![Demo](fig/prototypes.pdf "Prototypes")
+![Demo](fig/prototypes.png "Prototypes")
 
 ### Setup
 
@@ -47,11 +47,6 @@ WABDB_DIR: the absolute path to save wabdb outputs
 
 ### Training
 
-For the CSP task
-
-```
-python diffcsp/run.py data=<dataset> expname=<expname>
-```
 
 For the Ab Initio Generation task
 
