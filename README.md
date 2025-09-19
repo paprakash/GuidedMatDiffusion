@@ -2,11 +2,13 @@
 
 Implemetation guided diffusion using property embedding and classifier free guidance
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/jiaor17/DiffCSP/blob/main/LICENSE)   [**[Original Paper]**](https://arxiv.org/abs/2309.04475)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/jiaor17/DiffCSP/blob/main/LICENSE) 
+
+ [**[Original Paper]**](https://arxiv.org/abs/jhkjlkjj)
 
 ![Overview](fig/workflow.png "Workflow")
 
-![Demo](fig/demo.gif "Demo")
+![Demo](fig/fig5.gif "Demo")
 
 ### Setup
 
@@ -16,7 +18,7 @@ pip install -e .
 ```
 or 
 ```
-pip install git+https://github.com/FERMat-ML/MaterialsDiffusion.git
+pip install git+https://github.com/paprakash/GuidedMatDiffusion.git
 ```
 The former is the preferred way, as one will still need scripts and configuration files which are present in this repo if installing directly.
 
@@ -108,16 +110,13 @@ python scripts/compute_metrics.py --root_path <energy_model_path> --tasks opt
 
 ### Acknowledgments
 
-The main framework of this codebase is build upon [CDVAE](https://github.com/txie-93/cdvae). For the datasets, Perov-5, Carbon-24 and MP-20 are from [CDVAE](https://github.com/txie-93/cdvae), and MPTS-52 is collected from its original [codebase](https://github.com/sparks-baird/mp-time-split).
+The main framework of this codebase is build upon [DiffCSP](https://github.com/jiaor17/DiffCSP.git). For the datasets, Perov-5, Carbon-24 and MP-20 are from [CDVAE](https://github.com/jiaor17/DiffCSP.git), and MPTS-52 is collected from its original [codebase](https://github.com/sparks-baird/mp-time-split).
 
 ### Original Citation
 
 ```
-@article{jiao2023crystal,
-  title={Crystal structure prediction by joint equivariant diffusion},
-  author={Jiao, Rui and Huang, Wenbing and Lin, Peijia and Han, Jiaqi and Chen, Pin and Lu, Yutong and Liu, Yang},
-  journal={arXiv preprint arXiv:2309.04475},
-  year={2023}
+@article{,
+
 }
 ```
 
