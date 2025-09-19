@@ -1,4 +1,4 @@
-# Fork of Crystal Structure Prediction by Joint Equivariant Diffusion (NeurIPS 2023)
+# Guided Diffusion for the Discovery of New Superconductors 
 
 Implementation codes for Crystal Structure Prediction by Joint Equivariant Diffusion (DiffCSP) with MatterGen-like improvements. 
 
