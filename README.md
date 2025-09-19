@@ -4,7 +4,7 @@ Implemetation guided diffusion using property embedding and classifier free guid
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/jiaor17/DiffCSP/blob/main/LICENSE)   [**[Original Paper]**](https://arxiv.org/abs/2309.04475)
 
-![Overview](fig/overview.png "Overview")
+![Overview](fig/workflow.png "Workflow")
 
 ![Demo](fig/demo.gif "Demo")
 
