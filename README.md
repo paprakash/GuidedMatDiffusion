@@ -1,6 +1,6 @@
 # Guided Diffusion for the Discovery of New Superconductors 
 
-Implementation codes for Crystal Structure Prediction by Joint Equivariant Diffusion (DiffCSP) with MatterGen-like improvements. 
+Implemetation guided diffusion using property embedding and classifier free guidance
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/jiaor17/DiffCSP/blob/main/LICENSE)   [**[Original Paper]**](https://arxiv.org/abs/2309.04475)
 
