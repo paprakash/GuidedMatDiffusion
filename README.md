@@ -8,7 +8,7 @@ Implemetation guided diffusion using property embedding and classifier free guid
 
 ![Overview](fig/workflow.png "Workflow")
 
-![Demo](fig/fig5.gif "Demo")
+![Demo](fig/prototypes.pdf "Prototypes")
 
 ### Setup
 
