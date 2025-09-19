@@ -1,4 +1,4 @@
-# Fork of Crystal Structure Prediction by Joint Equivariant Diffusion (NeurIPS 2023)
+# For Pre-training of foundation model, follow the original DiffCSP method to do training on you data
 
 Implementation codes for Crystal Structure Prediction by Joint Equivariant Diffusion (DiffCSP) with MatterGen-like improvements. 
 
