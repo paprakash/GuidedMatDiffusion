@@ -3,6 +3,8 @@
 Implemetation guided diffusion using property embedding and classifier free guidance
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/jiaor17/DiffCSP/blob/main/LICENSE) 
+[![Hugging Face Models](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Models-blue)](https://huggingface.co/paprakash/GuidedMatDiffusion_model)
+[![Hugging Face Datasets](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Datasets-blue)](https://huggingface.co/datasets/paprakash/GuidedMatDiffusion_data)
 
  [**[Original Paper]**](https://arxiv.org/abs/jhkjlkjj)
 
