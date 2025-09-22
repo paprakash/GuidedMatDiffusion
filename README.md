@@ -13,7 +13,7 @@ Implemetation guided diffusion using property embedding and classifier free guid
 
  [**[Original Paper]**](https://arxiv.org/abs/jhkjlkjj)
 
-#### Workflow Pipeline
+### Workflow Pipeline
 
 <img src="fig/workflow.png" alt="workflow_pipeline" width="100%">
 
@@ -71,20 +71,20 @@ The ``<dataset>`` tag for fine_tuning for superconductivity is supcomb_12 but ot
 If one does not want to use WandB during training, comment out the "wandb" section in conf/logging/<your_config>.yaml. 
 
 
-#### Ab initio generation
+### Ab initio generation
 
 ```
 python scripts/generation.py --model_path <model_path> --dataset supccomb_12 --save_path <path_to_save_gen_structures> --band_gap <scaled/normalized_Tc> --guide_w <Guidace_weight> --batch_size <batch_size> --num_batch_to_sample <samples_in_each_batch>
 ```
-To-do: changing the band_gap tag to property.
+To-do: changing the band_gap tag to property
 
 Note: To scale the property, here T_c value (Tc_actual) you want to give the model use - 
-"""
-scaler = torch.load(Path(scaler_path) / 'prop_scaler.pt')
+```
+scaler = torch.load(Path(scaler_path) / 'prop_scaler.pt') \\
 Tc = scaler.transform(Tc_actual)
-"""
+```
 
-### Pre-Training
+#### Pre-Training
 
 Details of pre-training a foundation model, with alexandria dataset can be found in the pre_training branch.
 
