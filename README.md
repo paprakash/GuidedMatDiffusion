@@ -15,15 +15,12 @@ Implemetation guided diffusion using property embedding and classifier free guid
 
 #### Workflow Pipeline
 
-<img src="fig/workflow.png" alt="workflow_pipeline" width="60%">
+<img src="fig/workflow.png" alt="workflow_pipeline" width="100%">
 
 #### *De novo* generated new structural prototypes
 
-<img src="fig/prototypes.png" alt="prototypes" width="60%">
+<img src="fig/prototypes.png" alt="prototypes" width="80%">
 
-![Overview](fig/workflow.png "Workflow")
-
-![Demo](fig/prototypes.png "Prototypes")
 
 ### Setup
 
@@ -80,7 +77,12 @@ If one does not want to use WandB during training, comment out the "wandb" secti
 python scripts/generation.py --model_path <model_path> --dataset supccomb_12 --save_path <path_to_save_gen_structures> --band_gap <scaled/normalized_Tc> --guide_w <Guidace_weight> --batch_size <batch_size> --num_batch_to_sample <samples_in_each_batch>
 ```
 To-do: changing the band_gap tag to property.
-Note: to know how to scale the property(here T_c value) look at the script/scale.py
+
+Note: To scale the property, here T_c value (Tc_actual) you want to give the model use - 
+"""
+scaler = torch.load(Path(scaler_path) / 'prop_scaler.pt')
+Tc = scaler.transform(Tc_actual)
+"""
 
 ### Pre-Training
 
@@ -89,7 +91,9 @@ Details of pre-training a foundation model, with alexandria dataset can be found
 
 ### Acknowledgments
 
-The main framework of this codebase is build upon [DiffCSP](https://github.com/jiaor17/DiffCSP.git).Fine-tuning superconductivity dataset is from combining[Cerqueira et al](https://archive.materialscloud.org/records/3kbt5-r3n56) and [Gibson et al](https://arxiv.org/pdf/2503.20005). For pre-training alexandria dataset is from [Alexandria](https://alexandria.icams.rub.de).
+The main framework of this codebase is build upon [DiffCSP](https://github.com/jiaor17/DiffCSP.git).Fine-tuning superconductivity dataset is from combining [Cerqueira et al](https://archive.materialscloud.org/records/3kbt5-r3n56) and [Gibson et al](https://arxiv.org/pdf/2503.20005). For pre-training alexandria dataset is from [Alexandria](https://alexandria.icams.rub.de).
+
+
 ### Original Citation
 
 ```
