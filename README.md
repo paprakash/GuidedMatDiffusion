@@ -80,7 +80,7 @@ To-do: changing the band_gap tag to property
 
 Note: To scale the property, here T_c value (Tc_actual) you want to give the model use - 
 ```
-scaler = torch.load(Path(scaler_path) / 'prop_scaler.pt') \\
+scaler = torch.load(Path(scaler_path) / 'prop_scaler.pt')
 Tc = scaler.transform(Tc_actual)
 ```
 
