@@ -2,11 +2,24 @@
 
 Implemetation guided diffusion using property embedding and classifier free guidance
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/jiaor17/DiffCSP/blob/main/LICENSE) 
 [![Hugging Face Models](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Models-blue)](https://huggingface.co/paprakash/GuidedMatDiffusion_model)
 [![Hugging Face Datasets](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Datasets-blue)](https://huggingface.co/datasets/paprakash/GuidedMatDiffusion_data)
 
+[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
+[![PyTorch 2.3.0](https://img.shields.io/badge/PyTorch-2.3.0-EE4C2C.svg)](https://pytorch.org/)
+[![Lightning](https://img.shields.io/badge/Lightning-PyTorch-792EE5.svg)](https://lightning.ai/docs/pytorch/stable/)
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/jiaor17/DiffCSP/blob/main/LICENSE) 
+
  [**[Original Paper]**](https://arxiv.org/abs/jhkjlkjj)
+
+#### Workflow Pipeline
+
+<img src="fig/workflow.png" alt="workflow_pipeline" width="60%">
+
+#### *De novo* generated new structural prototypes
+
+<img src="fig/prototypes.png" alt="prototypes" width="60%">
 
 ![Overview](fig/workflow.png "Workflow")
 
@@ -50,65 +63,33 @@ WABDB_DIR: the absolute path to save wabdb outputs
 ### Training
 
 
-For the Ab Initio Generation task
+Fine-tuning a pre-trained foundation model for the Ab Initio Generation task
 
 ```
-python diffcsp/run.py data=<dataset> model=diffusion_w_type expname=<expname>
+python diffcsp/run.py data=supccomb_12 model=diffusion_w_type expname=<expname> train.ckpt_path=<path_to_pretrained_checkpoint>
 ```
 
-The ``<dataset>`` tag can be selected from perov_5, mp_20, mpts_52 and carbon_24, and the ``<expname>`` tag can be an arbitrary name to identify each experiment. Pre-trained checkpoints are provided [here](https://drive.google.com/drive/folders/11WOc9lTZN4hkIY7SKLCIrbsTMGy9TsoW?usp=sharing).
+The ``<dataset>`` tag for fine_tuning for superconductivity is supcomb_12 but other dataset can be selected from perov_5, mp_20, mpts_52 and carbon_24, and the ``<expname>`` tag can be an arbitrary name to identify each experiment. Trained checkpoint to generates superconductors as well as a pre-trained foundation model used for fine-tunning is provided at [hugging_face](https://huggingface.co/paprakash/GuidedMatDiffusion_model/tree/main).
 
-If one does not want to use WandB during training, comment out the "wandb" section in conf/logging/default.yaml. 
+If one does not want to use WandB during training, comment out the "wandb" section in conf/logging/<your_config>.yaml. 
 
-### Evaluation
-
-#### Stable structure prediction 
-
-One sample 
-
-```
-python scripts/evaluate.py --model_path <model_path> --dataset <dataset>
-python scripts/compute_metrics.py --root_path <model_path> --tasks csp --gt_file data/<dataset>/test.csv 
-```
-
-Multiple samples
-
-```
-python scripts/evaluate.py --model_path <model_path> --dataset <dataset> --num_evals 20
-python scripts/compute_metrics.py --root_path <model_path> --tasks csp --gt_file data/<dataset>/test.csv --multi_eval
-```
 
 #### Ab initio generation
 
 ```
-python scripts/generation.py --model_path <model_path> --dataset <dataset>
-python scripts/compute_metrics.py --root_path <model_path> --tasks gen --gt_file data/<dataset>/test.csv
+python scripts/generation.py --model_path <model_path> --dataset supccomb_12 --save_path <path_to_save_gen_structures> --band_gap <scaled/normalized_Tc> --guide_w <Guidace_weight> --batch_size <batch_size> --num_batch_to_sample <samples_in_each_batch>
 ```
+To-do: changing the band_gap tag to property.
+Note: to know how to scale the property(here T_c value) look at the script/scale.py
 
+### Pre-Training
 
-#### Sample from arbitrary composition
+Details of pre-training a foundation model, with alexandria dataset can be found in the pre_training branch.
 
-```
-python scripts/sample.py --model_path <model_path> --save_path <save_path> --formula <formula> --num_evals <num_evals>
-```
-
-#### Property Optimization
-
-```
-# train a time-dependent energy prediction model 
-python diffcsp/run.py data=<dataset> model=energy expname=<expname> data.datamodule.batch_size.test=100
-
-# Optimization
-python scripts/optimization.py --model_path <energy_model_path> --uncond_path <model_path>
-
-# Evaluation
-python scripts/compute_metrics.py --root_path <energy_model_path> --tasks opt
-```
 
 ### Acknowledgments
 
-The main framework of this codebase is build upon [DiffCSP](https://github.com/jiaor17/DiffCSP.git). For the datasets, Perov-5, Carbon-24 and MP-20 are from [CDVAE](https://github.com/jiaor17/DiffCSP.git), and MPTS-52 is collected from its original [codebase](https://github.com/sparks-baird/mp-time-split).
-
+The main framework of this codebase is build upon [DiffCSP](https://github.com/jiaor17/DiffCSP.git).Fine-tuning superconductivity dataset is from combining[Cerqueira et al](https://archive.materialscloud.org/records/3kbt5-r3n56) and [Gibson et al](https://arxiv.org/pdf/2503.20005). For pre-training alexandria dataset is from [Alexandria](https://alexandria.icams.rub.de).
 ### Original Citation
 
 ```
