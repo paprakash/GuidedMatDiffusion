@@ -21,9 +21,12 @@ monitor_metric_mode: 'min'
 
 early_stopping:
   patience: ${data.early_stopping_patience} # 60
-  verbose: False
+  verbose: True
 
 model_checkpoints:
   save_top_k: 1
   verbose: False
   save_last: False
+
+# Added for specifying the checkpoint path
+ckpt_path: null  # Default is null, meaning no checkpoint is used unless specified

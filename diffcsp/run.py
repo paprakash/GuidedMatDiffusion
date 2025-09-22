@@ -135,15 +135,20 @@ def run(cfg: DictConfig) -> None:
     yaml_conf: str = OmegaConf.to_yaml(cfg=cfg)
     (hydra_dir / "hparams.yaml").write_text(yaml_conf)
 
-    # Load checkpoint (if exist)
-    ckpts = list(hydra_dir.glob('*.ckpt'))
-    if len(ckpts) > 0:
-        ckpt_epochs = np.array([int(ckpt.parts[-1].split('-')[0].split('=')[1]) for ckpt in ckpts])
-        ckpt = str(ckpts[ckpt_epochs.argsort()[-1]])
-        hydra.utils.log.info(f"found checkpoint: {ckpt}")
+# Load checkpoint: Use cfg.train.ckpt_path or auto-detect the latest
+    ckpt = cfg.train.ckpt_path
+    if not ckpt:  # Auto-detect if no checkpoint path is provided
+        ckpts = list(hydra_dir.glob('*.ckpt'))
+        if len(ckpts) > 0:
+            ckpt_epochs = np.array([int(ckpt.parts[-1].split('-')[0].split('=')[1]) for ckpt in ckpts])
+            ckpt = str(ckpts[ckpt_epochs.argsort()[-1]])
+            hydra.utils.log.info(f"Auto-detected checkpoint: {ckpt}")
+        else:
+            ckpt = None
+            hydra.utils.log.info("No checkpoint found. Starting from scratch.")
     else:
-        ckpt = None
-          
+        hydra.utils.log.info(f"Using checkpoint specified in config: {ckpt}")
+
     hydra.utils.log.info("Instantiating the Trainer")
     trainer = pl.Trainer(
         default_root_dir=hydra_dir,
@@ -159,7 +164,7 @@ def run(cfg: DictConfig) -> None:
     log_hyperparameters(trainer=trainer, model=model, cfg=cfg)
 
     hydra.utils.log.info("Starting training!")
-    trainer.fit(model=model, datamodule=datamodule)
+    trainer.fit(model=model, datamodule=datamodule, ckpt_path=ckpt) #ckpt_path=ckpt use here need to be reconsidered, we can implement manual loading of ckpt and check missing keys
 
     hydra.utils.log.info("Starting testing!")
     trainer.test(datamodule=datamodule)
