@@ -3,7 +3,7 @@ requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "diffcsp"
+name = "guidediffusion"
 version = "0.0.1"
 requires-python = ">= 3.9"
 dependencies = [
@@ -18,8 +18,8 @@ dependencies = [
    "pyxtal",
    "einops",
 ]
-description = "Fork of DiffCSP with MatterGen-like improvements"
+description = "Implemetation guided diffusion using property embedding and CFG"
 readme = "README.md"
 
 [tool.setuptools.packages.find]
-include = ["diffcsp*"]
+include = ["guidediffusion*"]
