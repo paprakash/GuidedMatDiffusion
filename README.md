@@ -97,15 +97,14 @@ The main framework of this codebase is build upon [DiffCSP](https://github.com/j
 ### Original Citation
 
 ```
-@misc{https://doi.org/10.48550/arxiv.2509.25186,
-  doi = {10.48550/ARXIV.2509.25186},
-  url = {https://arxiv.org/abs/2509.25186},
-  author = {Prakash,  Pawan and Gibson,  Jason B. and Li,  Zhongwei and Di Gianluca,  Gabriele and Esquivel,  Juan and Fuemmeler,  Eric and Geisler,  Benjamin and Kim,  Jung Soo and Roitberg,  Adrian and Tadmor,  Ellad B. and Liu,  Mingjie and Martiniani,  Stefano and Stewart,  Gregory R. and Hamlin,  James J. and Hirschfeld,  Peter J. and Hennig,  Richard G.},
-  keywords = {Superconductivity (cond-mat.supr-con),  Materials Science (cond-mat.mtrl-sci),  Artificial Intelligence (cs.AI),  FOS: Physical sciences,  FOS: Physical sciences,  FOS: Computer and information sciences,  FOS: Computer and information sciences},
-  title = {Guided Diffusion for the Discovery of New Superconductors},
-  publisher = {arXiv},
-  year = {2025},
-  copyright = {Creative Commons Attribution 4.0 International}
+@misc{prakash2025guidediff,
+      title={Guided Diffusion for the Discovery of New Superconductors}, 
+      author={Pawan Prakash and Jason B. Gibson and Zhongwei Li and Gabriele Di Gianluca and Juan Esquivel and Eric Fuemmeler and Benjamin Geisler and Jung Soo Kim and Adrian Roitberg and Ellad B. Tadmor and Mingjie Liu and Stefano Martiniani and Gregory R. Stewart and James J. Hamlin and Peter J. Hirschfeld and Richard G. Hennig},
+      year={2025},
+      eprint={2509.25186},
+      archivePrefix={arXiv},
+      primaryClass={cond-mat.supr-con},
+      url={https://arxiv.org/abs/2509.25186}, 
 }
 ```
 
