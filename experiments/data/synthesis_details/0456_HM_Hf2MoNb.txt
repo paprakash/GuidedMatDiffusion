@@ -1,0 +1,20 @@
+Raw materials:
+Hf sponge (99.6%), Lot #WD14U011
+Mo slug (99.95%), Lot #W12D050
+Nb powder (99.99%), Lot #E21Y045
+
+Procedure:
+target masses
+Hf: 0.3172 g, Mo: 0.0852 g, Nb: 0.0826 g
+
+measured masses
+Hf: 0.3173 g, Mo: 0.0853 g, Nb: 0.0825 g
+
+initial mass: 0.4851 g
+final mass: 0.4834 g
+loss: 0.35%
+
+Nb was pressed into a pellet and arced beforehand.
+Heating curve: once a pellet, melt was heated and flipped 3 times. heated for 30-40 seconds
+
+

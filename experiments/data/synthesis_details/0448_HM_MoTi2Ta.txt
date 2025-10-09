@@ -1,0 +1,19 @@
+Raw materials:
+Mo slug (99.95%), Lot #W12D050
+Ta foil, unknown purity & Lot #
+Ti granules (99.9%), Lot #F07W044
+
+Procedure:
+target masses
+Mo: 0.0967 g, Ta: 0.3649 g, Ti: 0.0483 g
+
+measured masses
+Mo: 0.0961 g, Ta: 0.364 g, Ti 0.048 g: 
+
+initial mass: 0.5081 g
+final mass: 0.4787 g
+loss: 5.79%
+
+Heating curve: once a pellet, melt was heated and flipped 3 times. heated for 30-40 seconds at current 4
+
+
