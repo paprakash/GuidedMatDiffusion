@@ -1,0 +1,21 @@
+Raw materials:
+Hf sponge (99.6%), Lot #D14U011
+Ta powder (99.98%), Lot #22279
+Zr sponge (99.5%), Lot #C19Y039
+
+Procedure:
+target masses
+Hf: 0.0881 g, Ta: 0.3572 g, Zr: 0.045 g
+ 
+measured masses
+Hf: 0.08805 g, Ta: 0.35724 g, Zr: 0.04475 g
+
+initial mass: 0.49004 g
+final mass:0.48947 g
+loss: 0.12%
+
+Pressed Ta powder into a pellet and arced the pellet before synthesis
+
+Heating curve: Pellet was heated, melted, and flipped 3 times.
+
+

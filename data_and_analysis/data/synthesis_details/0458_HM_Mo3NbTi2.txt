@@ -1,0 +1,20 @@
+Raw materials:
+Mo slug (99.95%), Lot #W12D050
+Nb powder (99.99%), Lot #E21Y045
+Ti granules (99.9%), Lot #F07W044
+
+Procedure:
+target masses
+Mo: 0.2845 g, Nb: 0.0918 g, Ti: 0.0947 g
+
+measured masses
+Mo: 0.2848 g, Nb: 0.0918 g, Ti: 0.0946 g
+
+initial mass: 0.4712 g
+final mass: 0.4624 g
+loss: 1.87%
+
+Nb was pressed into a pellet and arced beforehand.
+Heating curve: once a pellet, melt was heated and flipped 3 times. heated for 30-40 seconds
+
+

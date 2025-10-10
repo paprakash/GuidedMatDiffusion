@@ -1,0 +1,20 @@
+Raw materials:
+Nb powder (99.99%), Lot #E21Y045
+Ta foil, unknown purity & Lot #
+Zr sponge (99.5%), Lot #C19Y039
+
+Procedure:
+target masses
+Nb: 0.2089 g, Ta: 0.2035 g, Zr: 0.1026 g
+
+measured masses
+Nb: 0.2087 g, Ta: 0.2043 g, Zr: 0.1022 g
+
+initial mass: 0.5152 g
+final mass: 0.514 g
+loss: 0.23%
+
+Nb was pressed into a pellet and arced beforehand. Ta was also arced beforehand.
+Heating curve: once a pellet, melt was heated and flipped 3 times. heated for 30-40 seconds
+
+

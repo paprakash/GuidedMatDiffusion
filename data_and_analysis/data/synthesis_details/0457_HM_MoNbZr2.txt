@@ -1,0 +1,20 @@
+Raw materials:
+Mo slug (99.95%), Lot #W12D050
+Nb powder (99.99%), Lot #E21Y045
+Zr sponge (99.5%), Lot #C19Y039
+
+Procedure:
+target masses
+Mo: 0.1434 g, Nb: 0.1389 g, Zr: 0.2727 g
+
+measured masses
+Mo: 0.1438 g, Nb: 0.1388 g, Zr: 0.2724 g
+
+initial mass: 0.555 g
+final mass: 0.5549 g
+loss: %
+
+Nb was pressed into a pellet and arced beforehand.
+Heating curve: once a pellet, melt was heated and flipped 3 times. heated for 30-40 seconds
+
+

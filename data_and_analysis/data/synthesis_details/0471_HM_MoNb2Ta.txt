@@ -1,0 +1,21 @@
+Raw materials:
+Mo slug (99.95%), Lot #W12D050
+Nb powder (99.99%), Lot #E21Y045
+Ta powder (99.98%), Lot #22279
+
+Procedure:
+target masses:
+Mo: 0.1295 g, Nb: 0.2508 g, Ta: 0.2442 g
+
+measured masses:
+Mo: 0.12954 g, Nb: 0.25006 g, Ta: 0.24419 g
+
+initial mass: 0.62379 g
+final mass: 0.62255 g
+loss: 0.2% 
+
+Nb and Ta both were pressed into pellets, Ta was pelleted and melted first, Nb was pelleted, melted, and cut based off of the Ta ingot
+
+Heating curve: Pellets were heated and flipped 3 times, melted for 30 sec each
+
+

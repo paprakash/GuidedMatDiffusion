@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "guided-matdiffusion-experiments"
+version = "0.1.0"
+description = "Experimental analysis for guided materials diffusion research"
+authors = ["James J. Hamlin <jhamlin@ufl.edu>"]
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "<3.13,>=3.10"
+pymatgen = "^2025.3.10"
+ase = "^3.24.0"
+pandas = "^2.2.3"
+matplotlib = "^3.10.1"
+networkx = "^3.4.2"
+jupyterlab = "^4.3.5"
+aflow = "^0.0.11"
+
+[tool.poetry.group.dev.dependencies]
+jupyterlab-vim = "^4.1.4"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
