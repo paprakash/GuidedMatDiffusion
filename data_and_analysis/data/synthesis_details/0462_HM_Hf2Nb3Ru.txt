@@ -1,0 +1,22 @@
+Raw materials:
+Hf sponge(99.6%), Lot #WD14U011
+Nb powder (99.99%), Lot #E21Y045
+Ru pellets (99.95%), Lot #P07J007
+
+Procedure:
+target masses
+Hf: 0.2103 g, Nb: 0.1642 g, Ru: 0.0595 g
+
+measured masses
+Hf: 0.2104 g, Nb: 0.1642 g, Ru: 0.0596 g
+
+initial mass: 0.4342 g
+final mass: 0.4287 g
+loss: 1.27%
+
+Pressed Nb powder into pellets and then arced the pellets before doing the synthesis
+
+After first flip, when remelting, sparks/bits flew off and likely led to ~1% loss as opposed to samples 463 and 464 (which were made at the same time) which had very little loss
+
+Heating curve: once a pellet, melt was heated and flipped 3 times. heated for 30 seconds
+

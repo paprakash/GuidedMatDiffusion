@@ -1,0 +1,19 @@
+Raw materials:
+Hf sponge(99.6%), Lot #WD14U011
+Mo slug (99.95%), Lot #W12D050
+Ta foil, unknown purity & Lot #
+
+Procedure:
+target masses
+Hf: 0.1400 g, Mo: 0.0752 g, Ta: 0.2838 g
+
+measured masses
+Hf: 0.1407 g, Mo: 0.0753 g, Ta: 0.2836 g 
+
+initial mass: 0.4996 g
+final mass: 0.4978 g
+loss: 0.36%
+
+Heating curve: once a pellet, melt was heated and flipped 3 times. heated for 30-40 seconds
+
+

@@ -1,0 +1,19 @@
+Raw materials:
+Hf sponge(99.6%), Lot #WD14U011
+Mo slug (99.95%), Lot #W12D050
+Ti granules (99.9%), Lot #F07W044
+
+Procedure:
+target masses
+Hf: 0.3564 g, Mo: 0.0958 g, Ti: 0.0478 g
+
+measured masses
+Hf: 0.3563 g, Mo: 0.0958 g, Ti: 0.0479 g
+
+initial mass: 0.5000 g
+final mass: 0.4975 g
+loss: 0.5%
+
+Heating curve: once a pellet, melt was heated and flipped 3 times. heated for 30-40 seconds
+
+

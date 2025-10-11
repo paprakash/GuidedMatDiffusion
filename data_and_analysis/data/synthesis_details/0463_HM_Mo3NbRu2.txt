@@ -1,0 +1,20 @@
+Raw materials:
+Mo slug (99.95%), Lot #W12D050
+Nb powder (99.99%), Lot #E21Y045
+Ru pellets (99.95%), Lot #P07J007
+
+Procedure:
+target masses
+Mo: 0.1911 g, Nb: 0.0617 g, Ru: 0.1342 g
+
+measured masses
+Mo: 0.1910 g, Nb: 0.0616 g, Ru: 0.1343 g
+
+initial mass: 0.3869 g
+final mass: 0.3868 g
+loss: 0.03%
+
+Pressed Nb powder into pellets and then arced the pellets before doing the synthesis
+
+Heating curve: once a pellet, melt was heated and flipped 3 times. heated for 30 seconds
+

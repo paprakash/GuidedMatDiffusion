@@ -1,0 +1,19 @@
+Raw materials:
+Mo slug (99.95%), Lot #W12D050
+Ta foil, unknown purity & Lot #
+Zr sponge (99.5%), Lot #C19Y039
+
+Procedure:
+target masses
+Mo: 0.1038 g, Ta: 0.1958 g, Zr: 0.1974 g
+
+measured masses
+Mo: 0.1036 g, Ta: 0.1958 g, Zr: 0.1974 g
+
+initial mass: 0.4968 g
+final mass: 0.497 g
+loss: 0%
+
+Heating curve: once a pellet, melt was heated and flipped 3 times. heated for 30-40 seconds
+
+
